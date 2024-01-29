@@ -54,6 +54,8 @@ class BankCreditTransfer extends CreditTransfer
     {
         $root = $this->buildHeader($doc, $paymentInformation);
 
+        $root->appendChild($doc->createElement('ChrgBr', 'SHAR'));
+
         $creditorAgent = $doc->createElement('CdtrAgt');
         $creditorAgent->appendChild($this->creditorAgent->asDom($doc));
         $root->appendChild($creditorAgent);

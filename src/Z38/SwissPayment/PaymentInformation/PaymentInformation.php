@@ -233,6 +233,11 @@ class PaymentInformation
             $serviceLevel = $this->serviceLevel ?: $this->inferServiceLevel();
             if ($serviceLevel !== null) {
                 $serviceLevelNode = $doc->createElement('SvcLvl');
+                if ($serviceLevel === 'SEPA') {
+                    $tag = 'Cd';
+                } else {
+                    $tag = 'Prtry';
+                }
                 $serviceLevelNode->appendChild($doc->createElement('Prtry', $serviceLevel));
                 $paymentType->appendChild($serviceLevelNode);
             }
