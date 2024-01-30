@@ -238,7 +238,7 @@ class PaymentInformation
                 } else {
                     $tag = 'Prtry';
                 }
-                $serviceLevelNode->appendChild($doc->createElement('Prtry', $serviceLevel));
+                $serviceLevelNode->appendChild($doc->createElement($tag, $serviceLevel));
                 $paymentType->appendChild($serviceLevelNode);
             }
             $localInstrument = $this->localInstrument ?: $this->inferLocalInstrument();
