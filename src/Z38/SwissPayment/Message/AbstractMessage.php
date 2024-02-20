@@ -157,15 +157,15 @@ abstract class AbstractMessage implements MessageInterface
         $root = $doc->createElement('Id');
         $orgId = $doc->createElement('OrgId');
 
-        $other2 = $doc->createElement('Othr');
-        $schmeNm2 = $doc->createElement('SchmeNm');
-        $schmeNm2->appendChild(Text::xml($doc, 'Cd', 'CUST'));
-        $other2->appendChild(Text::xml($doc, 'Id', $this->initiatingPartyId));
-
         $other = $doc->createElement('Othr');
         $schmeNm = $doc->createElement('SchmeNm');
-        $schmeNm->appendChild(Text::xml($doc, 'Cd', 'BANK'));
-        $other->appendChild(Text::xml($doc, 'Id', 'LØNNSFIL'));
+        $schmeNm->appendChild(Text::xml($doc, 'Cd', 'CUST'));
+        $other->appendChild(Text::xml($doc, 'Id', $this->initiatingPartyId));
+
+        $other2 = $doc->createElement('Othr');
+        $schmeNm2 = $doc->createElement('SchmeNm');
+        $schmeNm2->appendChild(Text::xml($doc, 'Cd', 'BANK'));
+        $other2->appendChild(Text::xml($doc, 'Id', 'LØNNSFIL'));
 
         $other->appendChild($schmeNm);
         $other2->appendChild($schmeNm2);
