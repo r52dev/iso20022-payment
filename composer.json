@@ -11,6 +11,16 @@
             "name": "z38",
             "homepage": "https://github.com/z38",
             "role": "Developer"
+        },
+        {
+            "name": "invoicery",
+            "homepage": "https://github.com/invoicery",
+            "role": "Upstream Fork Maintainer"
+        },
+        {
+            "name": "r52dev",
+            "homepage": "https://github.com/r52dev",
+            "role": "Current Maintainer"
         }
     ],
     "require": {
