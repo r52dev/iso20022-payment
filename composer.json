@@ -1,5 +1,5 @@
 {
-    "name": "invoicery/iso20022-payment",
+    "name": "r52dev/iso20022-payment",
     "version": "3.0.3",
     "type": "library",
     "license": "MIT",
@@ -20,13 +20,13 @@
         "phpunit/phpunit": "~4.2"
     },
     "autoload": {
-        "psr-0": {
-            "Z38\\SwissPayment": "src/"
+        "psr-4": {
+            "R52dev\\ISO20022\\": "src/"
         }
     },
     "autoload-dev": {
-        "psr-0": {
-            "Z38\\SwissPayment\\Tests": "tests/"
+        "psr-4": {
+            "R52dev\\ISO20022\\Tests": "tests/"
         }
     }
 }
