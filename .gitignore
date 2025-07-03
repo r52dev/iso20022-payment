@@ -1,6 +1,7 @@
 .php_cs
 .php_cs.cache
 .DS_Store
+.idea
 
 phpunit.xml
 
