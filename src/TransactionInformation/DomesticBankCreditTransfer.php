@@ -45,9 +45,7 @@ class DomesticBankCreditTransfer extends CreditTransfer
         }
 
         parent::__construct($instructionId, $endToEndId, $amount, $creditorName, $creditorAddress);
-
-        $this->serviceLevel = 'NURG';
-
+        
         $this->creditorAccount = $creditorAccount;
         $this->creditorAgent = $creditorAgent;
     }
