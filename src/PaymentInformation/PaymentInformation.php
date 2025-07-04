@@ -2,8 +2,10 @@
 
 namespace R52dev\ISO20022\PaymentInformation;
 
+use R52dev\ISO20022\BBAN;
 use R52dev\ISO20022\BIC;
 use R52dev\ISO20022\FinancialInstitutionInterface;
+use R52dev\ISO20022\AccountInterface;
 use R52dev\ISO20022\IBAN;
 use R52dev\ISO20022\IID;
 use R52dev\ISO20022\Money;
@@ -61,9 +63,9 @@ class PaymentInformation
     protected $debtorAgent;
 
     /**
-     * @var IBAN
+     * @var IBAN|BBAN
      */
-    protected $debtorIBAN;
+    protected $debtorAccount;
 
     /**
      * Constructor
@@ -71,14 +73,19 @@ class PaymentInformation
      * @param string  $id          Identifier of this group (should be unique within a message)
      * @param string  $debtorName  Name of the debtor
      * @param BIC|IID $debtorAgent BIC or IID of the debtor's financial institution
-     * @param IBAN    $debtorIBAN  IBAN of the debtor's account
+     * @param IBAN|BBAN    $debtorAccount  IBAN or BBAN of the debtor's account
      *
      * @throws \InvalidArgumentException When any of the inputs contain invalid characters or are too long.
      */
-    public function __construct($id, $debtorName, FinancialInstitutionInterface $debtorAgent, IBAN $debtorIBAN, $serviceLevel = '', $localInstrument = '')
+    public function __construct($id, $debtorName, FinancialInstitutionInterface $debtorAgent, AccountInterface $debtorAccount, $serviceLevel = '', $localInstrument = '')
     {
+
         if (!$debtorAgent instanceof BIC && !$debtorAgent instanceof IID) {
             throw new \InvalidArgumentException('The debtor agent must be an instance of BIC or IID.');
+        }
+
+        if (!$debtorAccount instanceof IBAN && !$debtorAccount instanceof BBAN) {
+            throw new \InvalidArgumentException('The debtor account must be an instance of IBAN or BBAN.');
         }
 
         $this->id = Text::assertIdentifier($id);
@@ -87,16 +94,9 @@ class PaymentInformation
         $this->executionDate = new \DateTime();
         $this->debtorName = Text::assert($debtorName, 70);
         $this->debtorAgent = $debtorAgent;
-        $this->debtorIBAN = $debtorIBAN;
-
-        // this is special for our usecase with SEB
-        if ($serviceLevel) {
-            $this->serviceLevel = $serviceLevel;
-        }
-
-        if ($localInstrument) {
-            $this->localInstrument = $localInstrument;
-        }
+        $this->debtorAccount = $debtorAccount;
+        $this->serviceLevel = $serviceLevel;
+        $this->localInstrument = $localInstrument;
     }
 
     /**
@@ -233,12 +233,7 @@ class PaymentInformation
             $serviceLevel = $this->serviceLevel ?: $this->inferServiceLevel();
             if ($serviceLevel !== null) {
                 $serviceLevelNode = $doc->createElement('SvcLvl');
-                if ($serviceLevel === 'SEPA') {
-                    $tag = 'Cd';
-                } else {
-                    $tag = 'Prtry';
-                }
-                $serviceLevelNode->appendChild($doc->createElement($tag, $serviceLevel));
+                $serviceLevelNode->appendChild($doc->createElement('Cd', $serviceLevel));
                 $paymentType->appendChild($serviceLevelNode);
             }
             $localInstrument = $this->localInstrument ?: $this->inferLocalInstrument();
@@ -262,9 +257,7 @@ class PaymentInformation
         $root->appendChild($debtor);
 
         $debtorAccount = $doc->createElement('DbtrAcct');
-        $debtorAccountId = $doc->createElement('Id');
-        $debtorAccountId->appendChild($doc->createElement('IBAN', $this->debtorIBAN->normalize()));
-        $debtorAccount->appendChild($debtorAccountId);
+        $debtorAccount->appendChild($this->debtorAccount->asDom($doc));
         $root->appendChild($debtorAccount);
 
         $debtorAgent = $doc->createElement('DbtrAgt');
