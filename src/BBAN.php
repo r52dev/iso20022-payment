@@ -27,7 +27,7 @@ class BBAN implements AccountInterface
      */
     public function __construct($accountNumber)
     {
-        if (!self::check($accountNumber, 12)) {
+        if (!self::check($accountNumber, 14)) {
             throw new InvalidArgumentException('Account number not valid.');
         }
         $this->accountNumber = $accountNumber;
