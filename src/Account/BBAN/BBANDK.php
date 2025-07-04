@@ -15,8 +15,6 @@ use R52dev\ISO20022\BBAN;
  */
 class BBANDK extends BBAN
 {
-    protected string $branchCode;
-
     public function __construct(string $branchCode, string $accountNumber)
     {
         // Validate branch and account number parts individually
@@ -27,16 +25,7 @@ class BBANDK extends BBAN
             throw new \InvalidArgumentException('Invalid Danish account number.');
         }
 
-        $this->branchCode = $branchCode;
-        $this->accountNumber = $accountNumber;
-
-        // Combine parts into a single BBAN string for parent
-        parent::__construct($this->format());
-    }
-
-    public function format(): string
-    {
-        return str_pad($this->branchCode, 4, '0', STR_PAD_LEFT)
-            . str_pad($this->accountNumber, 10, '0', STR_PAD_LEFT);
+        $this->accountNumber = str_pad($branchCode, 4, '0', STR_PAD_LEFT)
+        . str_pad($accountNumber, 10, '0', STR_PAD_LEFT);
     }
 }
