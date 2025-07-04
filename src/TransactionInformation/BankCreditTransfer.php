@@ -20,7 +20,7 @@ class BankCreditTransfer extends CreditTransfer
     /**
      * @var IBAN
      */
-    protected $creditorIBAN;
+    protected $creditorAccount;
 
     /**
      * @var FinancialInstitutionInterface
@@ -30,7 +30,7 @@ class BankCreditTransfer extends CreditTransfer
     /**
      * {@inheritdoc}
      *
-     * @param IBAN    $creditorIBAN  IBAN of the creditor
+     * @param IBAN    $creditorAcount  IBAN of the creditor
      * @param BIC|IID $creditorAgent BIC or IID of the creditor's financial institution
      *
      * @throws \InvalidArgumentException When the amount is not in EUR or CHF or when the creditor agent is not BIC or IID.
