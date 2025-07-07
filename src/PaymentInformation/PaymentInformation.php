@@ -4,6 +4,7 @@ namespace R52dev\ISO20022\PaymentInformation;
 
 use R52dev\ISO20022\BBAN;
 use R52dev\ISO20022\BIC;
+use R52dev\ISO20022\DebtorInterface;
 use R52dev\ISO20022\FinancialInstitutionInterface;
 use R52dev\ISO20022\AccountInterface;
 use R52dev\ISO20022\IBAN;
@@ -53,9 +54,9 @@ class PaymentInformation
     protected $executionDate;
 
     /**
-     * @var string
+     * @var DebtorInterface
      */
-    protected $debtorName;
+    protected $debtor;
 
     /**
      * @var FinancialInstitutionInterface
@@ -68,16 +69,21 @@ class PaymentInformation
     protected $debtorAccount;
 
     /**
+     * @var string|null
+     */
+    protected $currency;
+
+    /**
      * Constructor
      *
      * @param string  $id          Identifier of this group (should be unique within a message)
-     * @param string  $debtorName  Name of the debtor
+     * @param DebtorInterface  $debtor  Name of the debtor
      * @param BIC|IID $debtorAgent BIC or IID of the debtor's financial institution
      * @param IBAN|BBAN    $debtorAccount  IBAN or BBAN of the debtor's account
      *
      * @throws \InvalidArgumentException When any of the inputs contain invalid characters or are too long.
      */
-    public function __construct($id, $debtorName, FinancialInstitutionInterface $debtorAgent, AccountInterface $debtorAccount, $serviceLevel = '', $localInstrument = '')
+    public function __construct($id, DebtorInterface $debtor, FinancialInstitutionInterface $debtorAgent, AccountInterface $debtorAccount, $serviceLevel = '', $localInstrument = '')
     {
 
         if (!$debtorAgent instanceof BIC && !$debtorAgent instanceof IID) {
@@ -92,7 +98,7 @@ class PaymentInformation
         $this->transactions = [];
         $this->batchBooking = true;
         $this->executionDate = new \DateTime();
-        $this->debtorName = Text::assert($debtorName, 70);
+        $this->debtor = $debtor;
         $this->debtorAgent = $debtorAgent;
         $this->debtorAccount = $debtorAccount;
         $this->serviceLevel = $serviceLevel;
@@ -214,6 +220,41 @@ class PaymentInformation
     }
 
     /**
+     * Gets the currency of the debtor account (ISO 4217 format, e.g., "DKK", "EUR").
+     *
+     * This corresponds to the optional <Ccy> element under <DbtrAcct> in ISO 20022.
+     *
+     * @return string|null The 3-letter currency code, or null if not set.
+     */
+    public function getCurrency(): ?string
+    {
+        return $this->currency;
+    }
+
+    /**
+     * Sets the currency of the debtor account (ISO 4217 format).
+     *
+     * If provided, this will be included as <Ccy> under <DbtrAcct> in the generated XML.
+     *
+     * @param string|null $currency A 3-letter ISO currency code (e.g., "DKK", "EUR"), or null to omit.
+     * @return static
+     */
+    public function setCurrency(?string $currency): static
+    {
+        if ($currency !== null) {
+            $currency = strtoupper($currency);
+
+            if (!preg_match('/^[A-Z]{3}$/', $currency)) {
+                throw new \InvalidArgumentException("Currency must be a 3-letter ISO 4217 code.");
+            }
+        }
+
+        $this->currency = $currency ? strtoupper($currency) : null;
+
+        return $this;
+    }
+
+    /**
      * Builds a DOM tree of this payment instruction
      *
      * @param \DOMDocument $doc
@@ -252,9 +293,7 @@ class PaymentInformation
 
         $root->appendChild($doc->createElement('ReqdExctnDt', $this->executionDate->format('Y-m-d')));
 
-        $debtor = $doc->createElement('Dbtr');
-        $debtor->appendChild(Text::xml($doc, 'Nm', $this->debtorName));
-        $root->appendChild($debtor);
+        $root->appendChild($this->debtor->asDom($doc));
 
         $debtorAccount = $doc->createElement('DbtrAcct');
         $debtorAccount->appendChild($this->debtorAccount->asDom($doc));
@@ -262,6 +301,9 @@ class PaymentInformation
 
         $debtorAgent = $doc->createElement('DbtrAgt');
         $debtorAgent->appendChild($this->debtorAgent->asDom($doc));
+        if ($this->currency) {
+            $debtorAccount->appendChild($doc->createElement('Ccy', $this->currency));
+        }
         $root->appendChild($debtorAgent);
 
         foreach ($this->transactions as $transaction) {
