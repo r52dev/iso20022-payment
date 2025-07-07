@@ -7,6 +7,22 @@ This package is a PHP library to generate ISO 20022 XML payment messages (pain.0
 
 > 💡 Maintained by [R52dev](https://github.com/r52dev) as a fork of `invoicery/iso20022-payment`, which itself was based on the original Swiss implementation by `z38`.
 
+## Installation from GitHub (VCS)
+
+> **Note:** This package is **not yet published on Packagist**.  
+> To use it, you must add it as a VCS repository in your project's `composer.json` as described below.  
+> Once the package is published on Packagist, you can remove the VCS repository configuration and require it normally.
+
+
+```json
+"repositories": [
+      {
+          "type": "vcs",
+          "url": "https://github.com/r52dev/iso20022-payment"
+      }
+],
+```        
+
 ## Installation
 
 Just install [Composer](http://getcomposer.org) and run `composer require r52dev/iso20022-payment` in your project directory.
