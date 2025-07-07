@@ -19,6 +19,7 @@ To get a basic understanding on how the messages are structured, take a look [th
 <?php
 
 use R52dev\ISO20022\BIC;
+use R52dev\ISO20022\Debtor;
 use R52dev\ISO20022\IBAN;
 use R52dev\ISO20022\Message\CustomerCreditTransfer;
 use R52dev\ISO20022\PaymentInformation\PaymentInformation;
@@ -27,7 +28,7 @@ use R52dev\ISO20022\Money\DKK;
 
 $payment = new PaymentInformation(
     'payment-001',
-    'Acme Company',
+    new Debtor('Acme Company'),
     new BIC('NDEADKKK'),
     new IBAN('DK5000400440116243')
 );
