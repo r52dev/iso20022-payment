@@ -1,13 +1,15 @@
-# SwissPayment
+# ISO 20022 Payment
 
 [![Build Status](https://travis-ci.org/z38/swiss-payment.png?branch=master)](https://travis-ci.org/z38/swiss-payment)
 [![Scrutinizer Code Quality](https://scrutinizer-ci.com/g/z38/swiss-payment/badges/quality-score.png?b=master)](https://scrutinizer-ci.com/g/z38/swiss-payment/?branch=master)
 
-**SwissPayment** is a PHP library to generate Swiss pain.001 XML messages (complies with ISO-20022).
+This package is a PHP library to generate ISO 20022 XML payment messages (pain.001) for use with Nordic and SEPA-compatible banks. It is based on the original [z38/swiss-payment](https://github.com/z38/swiss-payment) package and has been adapted to meet broader European use cases.
+
+> 💡 Maintained by [R52dev](https://github.com/r52dev) as a fork of `invoicery/iso20022-payment`, which itself was based on the original Swiss implementation by `z38`.
 
 ## Installation
 
-Just install [Composer](http://getcomposer.org) and run `composer require z38/swiss-payment` in your project directory.
+Just install [Composer](http://getcomposer.org) and run `composer require r52dev/iso20022-payment` in your project directory.
 
 ## Usage
 
@@ -16,54 +18,39 @@ To get a basic understanding on how the messages are structured, take a look [th
 ```php
 <?php
 
-require_once __DIR__.'/vendor/autoload.php';
-
-use Z38\SwissPayment\BIC;
-use Z38\SwissPayment\IBAN;
-use Z38\SwissPayment\Message\CustomerCreditTransfer;
-use Z38\SwissPayment\Money;
-use Z38\SwissPayment\PaymentInformation\PaymentInformation;
-use Z38\SwissPayment\PostalAccount;
-use Z38\SwissPayment\StructuredPostalAddress;
-use Z38\SwissPayment\TransactionInformation\BankCreditTransfer;
-use Z38\SwissPayment\TransactionInformation\IS1CreditTransfer;
-use Z38\SwissPayment\UnstructuredPostalAddress;
-
-$transaction1 = new BankCreditTransfer(
-    'instr-001',
-    'e2e-001',
-    new Money\CHF(130000), // CHF 1300.00
-    'Muster Transport AG',
-    new StructuredPostalAddress('Wiesenweg', '14b', '8058', 'Zürich-Flughafen'),
-    new IBAN('CH51 0022 5225 9529 1301 C'),
-    new BIC('UBSWCHZH80A')
-);
-
-$transaction2 = new IS1CreditTransfer(
-    'instr-002',
-    'e2e-002',
-    new Money\CHF(30000), // CHF 300.00
-    'Finanzverwaltung Stadt Musterhausen',
-    UnstructuredPostalAddress::sanitize('Altstadt 1a', '4998 Musterhausen'),
-    new PostalAccount('80-151-4')
-);
+use R52dev\ISO20022\BIC;
+use R52dev\ISO20022\IBAN;
+use R52dev\ISO20022\Message\CustomerCreditTransfer;
+use R52dev\ISO20022\PaymentInformation\PaymentInformation;
+use R52dev\ISO20022\TransactionInformation\BankCreditTransfer;
+use R52dev\ISO20022\Money\DKK;
 
 $payment = new PaymentInformation(
     'payment-001',
-    'InnoMuster AG',
-    new BIC('ZKBKCHZZ80A'),
-    new IBAN('CH6600700110000204481')
+    'Acme Company',
+    new BIC('NDEADKKK'),
+    new IBAN('DK5000400440116243')
 );
-$payment->addTransaction($transaction1);
-$payment->addTransaction($transaction2);
 
-$message = new CustomerCreditTransfer('message-001', 'InnoMuster AG');
+$transaction = new BankCreditTransfer(
+    'instr-001',
+    'e2e-001',
+    new DKK(50000), // DKK 500.00
+    'Philip Espersen',
+    'Example Street 1, DK-1234 City',
+    new IBAN('DK7620000123456789'),
+    new BIC('NDEADKKK')
+);
+
+$payment->addTransaction($transaction);
+
+$message = new CustomerCreditTransfer('msg-0001', 'From Acme Company');
 $message->addPayment($payment);
 
 echo $message->asXml();
 ```
 
-**Tip:** Take a look at `Z38\SwissPayment\Tests\Message\CustomerCreditTransferTest` to see all payment types in action.
+**Tip:** Take a look at `Tests\Message\CustomerCreditTransferTest` to see all payment types in action.
 
 ## Caveats
 
@@ -82,6 +69,11 @@ If you want to get your hands dirty, great! Here's a couple of steps/guidelines:
 
 If you don't want to go through all this, but still found something wrong or missing, please
 let me know, and/or **open a new issue report** so that I or others may take care of it.
+
+## License & Credits
+
+This library is licensed under MIT.
+Originally created by [z38](https://github.com/z38), later adapted and extended by [invoicery](https://github.com/invoicery), and currently maintained by [R52dev](https://github.com/r52dev) for use with Nordic banks, including support for Danish BBAN structures and SEPA transfers.
 
 ## Further Resources
 
